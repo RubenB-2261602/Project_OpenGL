@@ -170,6 +170,8 @@
   <ItemGroup>
     <None Include="resources\shaders\cubeShader.fs" />
     <None Include="resources\shaders\cubeShader.vs" />
+    <None Include="resources\shaders\lightShader.fs" />
+    <None Include="resources\shaders\lightShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="resources\maze.txt" />

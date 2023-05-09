@@ -82,6 +82,12 @@
     <None Include="resources\shaders\cubeShader.vs">
       <Filter>resources\shaders</Filter>
     </None>
+    <None Include="resources\shaders\lightShader.fs">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="resources\shaders\lightShader.vs">
+      <Filter>resources\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\gravel.png">

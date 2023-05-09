@@ -45,20 +45,39 @@ struct MazeLocation
 
 // Cube information
 float vertices[] = {
-    // Postion            // TextCoord
-   -0.5f, -0.5f, -0.5f,  0, 0, // Front Bottom Left
-    0.5f, -0.5f, -0.5f,  2, 0, // Front Bottom Right
-    0.5f,  0.5f, -0.5f,  2, 2, // Front Top Right
-   -0.5f,  0.5f, -0.5f,  0, 2, // Front Top Left
+        // Postion            // Normals           // TextCoord
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0, 0,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  2, 0,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  2, 2,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0, 2,
 
-   -0.5f, -0.5f,  0.5f,  2, 0, // Back Bottom Left
-    0.5f, -0.5f,  0.5f,  0, 0, // Back Bottom Right
-    0.5f,  0.5f,  0.5f,  0, 2, // Back Top Right
-   -0.5f,  0.5f,  0.5f,  2, 2, // Back Top Left
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0, 0,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  2, 0,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  2, 2,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0, 2,
 
-   -0.5f, -0.5f, -0.5f,  2, 2, // Front Bottom Left for bottom
-    0.5f,  0.5f, -0.5f,  0, 0, // Back Top right for top
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0, 0,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  2, 0,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  2, 2,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0, 2,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0, 0,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  2, 0,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  2, 2,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0, 2,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0, 0,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  2, 0,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  2, 2,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0, 2,
+        
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0, 0,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  2, 0,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  2, 2,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0, 2,
+        
 };
+
 unsigned int indices[] = {
     // Front
     0, 1, 2,
@@ -68,21 +87,21 @@ unsigned int indices[] = {
     4, 5, 6,
     4, 6, 7,
 
-    // Right
-    1, 2, 5,
-    2, 5, 6,
-
     // Left
-    0, 4, 3,
-    4, 3, 7,
+    8, 9, 10,
+    8, 10, 11,
+
+    // Right
+    12, 13, 14,
+    12, 14, 15,
 
     // Bottom
-    8, 1, 5,
-    8, 5, 4,
+    16, 17, 18,
+    16, 18, 19,
 
-    // Top
-    3, 9, 7,
-    7, 6, 9,
+    //// Top
+    20, 21, 22,
+    20, 22, 23
 
 };
 
@@ -162,13 +181,17 @@ int main()
     Shader shader(FileReader("resources/shaders/cubeShader.vs").getFileContent(),
         FileReader("resources/shaders/cubeShader.fs").getFileContent());
 
+    Shader lightShader(FileReader("resources/shaders/cubeShader.vs").getFileContent(),
+                       FileReader("resources/shaders/lightShader.fs").getFileContent());
+
     // Create VAO, VBO & EBO's
     VAO floorVAO = VAO();
     VBO cubeVBO = VBO(vertices, sizeof(vertices));
     EBO cubeEBO = EBO(indices, sizeof(indices));
 
-    floorVAO.AddAttrib(cubeVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), 0);
-    floorVAO.AddAttrib(cubeVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3*sizeof(float)));
+    floorVAO.AddAttrib(cubeVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
+    floorVAO.AddAttrib(cubeVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(6*sizeof(float)));
+    floorVAO.AddAttrib(cubeVBO, 3, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3*sizeof(float)));
 
     unsigned int floorInstanceVBO;
     glGenBuffers(1, &floorInstanceVBO);
@@ -190,8 +213,9 @@ int main()
     cubeVBO.Bind();
     cubeEBO.Bind();
 
-    wallVAO.AddAttrib(cubeVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), 0);
-    wallVAO.AddAttrib(cubeVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    wallVAO.AddAttrib(cubeVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), 0);
+    wallVAO.AddAttrib(cubeVBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    wallVAO.AddAttrib(cubeVBO, 3, 2, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 
     unsigned int wallInstanceVBO;
     glGenBuffers(1, &wallInstanceVBO);
@@ -209,12 +233,24 @@ int main()
     cubeVBO.UnBind();
     cubeEBO.UnBind();
 
+    VAO lightVAO = VAO();
+    cubeVBO.Bind();
+    cubeEBO.Bind();
+
+    lightVAO.AddAttrib(cubeVBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+
+    lightVAO.Unbind();
+    cubeVBO.UnBind();
+    cubeEBO.UnBind();
+
     // Create Textures
     Texture leaves("resources/textures/leaves.png", GL_TEXTURE_2D, GL_TEXTURE0);
     Texture gravel("resources/textures/gravel.png", GL_TEXTURE_2D, GL_TEXTURE0);
 
     // Enable GL functions
     glEnable(GL_DEPTH_TEST);
+
+    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
     // Draw loop
     while (!glfwWindowShouldClose(window))
@@ -230,21 +266,37 @@ int main()
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-               
+
+        glm::mat4 model = glm::mat4(1.0f);
+
+        lightShader.Enable();
+        lightVAO.Bind();
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2));
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "cameraMatrix"), 1, GL_FALSE, glm::value_ptr(playerCam.getCamMatrix()));
+        glUniform3f(glGetUniformLocation(lightShader.ID, "viewPos"), playerCam.Position.x, playerCam.Position.y, playerCam.Position.z);
+
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
         // Transform local coordinats to view coordiantes
         shader.Enable();
-        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::mat4(1.0f);
+        glUniform4f(glGetUniformLocation(shader.ID, "lightColor"), 1.0f, 1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(shader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "cameraMatrix"), 1, GL_FALSE, glm::value_ptr(playerCam.getCamMatrix()));
 
         // render
+        wallVAO.Bind();
+        leaves.Bind();
+        glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, wallTranslations.size());
+
         floorVAO.Bind();
         gravel.Bind();
         glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, floorTranslations.size());
 
-        wallVAO.Bind();
-        leaves.Bind();
-        glDrawElementsInstanced(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0, wallTranslations.size());
+
 
         // swap buffers & check events
         glfwSwapBuffers(window);
