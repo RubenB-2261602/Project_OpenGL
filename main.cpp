@@ -13,12 +13,15 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "Model.h"
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 void processInput(GLFWwindow* window);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+bool CheckCollision(glm::vec3 object);
 
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
@@ -184,6 +187,9 @@ int main()
     Shader lightShader(FileReader("resources/shaders/cubeShader.vs").getFileContent(),
                        FileReader("resources/shaders/lightShader.fs").getFileContent());
 
+    Shader modelShader("resources/shaders/modelShader.vs", "resources/shaders/modelShader.fs");
+
+
     // Create VAO, VBO & EBO's
     VAO floorVAO = VAO();
     VBO cubeVBO = VBO(vertices, sizeof(vertices));
@@ -249,6 +255,11 @@ int main()
 
     // Enable GL functions
     glEnable(GL_DEPTH_TEST);
+  
+  
+    //Loads diamond for testing, this can be changed later
+    Model diamondModel("resources/models/diamond/source/Diamond.blend");
+
 
     glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
@@ -261,8 +272,29 @@ int main()
         lastFrame = currentFrame;
 
         // input
+        
         processInput(window);
+
+        glm::vec3 lastPos = playerCam.Position;
         playerCam.InputHandler(window, deltaTime);
+        bool isCollision = CheckCollision(wallTranslations[0]);
+
+
+        for (size_t i = 0; i < wallTranslations.size(); i++)
+        {
+            isCollision = CheckCollision(wallTranslations[i]);
+            if (isCollision)
+            {
+                break;
+            }
+        }
+
+        if (isCollision)
+        {
+            playerCam.Position.x = lastPos.x;
+            playerCam.Position.z = lastPos.z;
+        }
+
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -279,8 +311,21 @@ int main()
 
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-        // Transform local coordinats to view coordiantes
-        shader.Enable();
+        //Draw 3d model
+        modelShader.Enable();
+
+        glm::mat4 view = playerCam.getView();
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(playerCam.getProjection()));
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+        glm::mat4 assimpModel;
+        assimpModel = glm::translate(assimpModel, glm::vec3(0.0f, -1.75f, 0.0f));
+        assimpModel = glm::scale(assimpModel, glm::vec3(0.2f, 0.2f, 0.2f));
+        
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(assimpModel));
+        diamondModel.Draw(modelShader)
+          
+        // Transform local coordinats to view coordiantes.Enable();
         model = glm::mat4(1.0f);
         glUniform4f(glGetUniformLocation(shader.ID, "lightColor"), 1.0f, 1.0f, 1.0f, 1.0f);
         glUniform3f(glGetUniformLocation(shader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
@@ -355,4 +400,21 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     front.y = sin(glm::radians(playerCam.Pitch));
     front.z = sin(glm::radians(playerCam.Yaw)) * cos(glm::radians(playerCam.Pitch));
     playerCam.LookingDirection = glm::normalize(front);
+}
+
+bool CheckCollision(glm::vec3 object)
+{
+    glm::vec3 posBeforeColl = playerCam.Position;
+    if (playerCam.Position.x <= object.x + 0.65f &&
+        playerCam.Position.y <= object.y + 1.65f &&
+        playerCam.Position.z <= object.z + 0.65f &&
+        playerCam.Position.x >= object.x - 0.65f &&
+        playerCam.Position.y >= object.y - 1.65f &&
+        playerCam.Position.z >= object.z - 0.65f )
+    {
+        std::cout << "Collision!" << std::endl;
+        return true;
+    }
+
+    return false;
 }

@@ -19,6 +19,9 @@
     <Filter Include="resources\textures">
       <UniqueIdentifier>{97dae027-ee64-4ec5-972e-240f6d9df74f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resources\models">
+      <UniqueIdentifier>{484b679b-5452-4651-a44e-3e0759e2dbc7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -74,6 +77,12 @@
     <ClInclude Include="EBO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\cubeShader.fs">
@@ -86,6 +95,10 @@
       <Filter>resources\shaders</Filter>
     </None>
     <None Include="resources\shaders\lightShader.vs">
+    <None Include="modelShader.vs">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="modelShader.fs">
       <Filter>resources\shaders</Filter>
     </None>
   </ItemGroup>

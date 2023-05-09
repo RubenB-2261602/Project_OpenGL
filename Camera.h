@@ -42,6 +42,12 @@ public:
 	void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 	glm::mat4 getCamMatrix();
+
+
+	glm::mat4 getProjection();
+
+	glm::mat4 getView();
+
 };
 
 
